@@ -1,5 +1,5 @@
 services:
-  # --- DATABAS FÖR TRAINING ---
+  # --- DATABASE FOR TRAINING ---
   db-training:
     image: postgres:15
     container_name: postgres-training-service
@@ -14,7 +14,7 @@ services:
     networks:
       - micro-network
 
-  # --- DATABAS FÖR USER ---
+  # --- DATABASE FOR USER ---
   db-user:
     image: postgres:15
     container_name: postgres-user-service
