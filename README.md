@@ -5,7 +5,7 @@
 A fitness application to help you with planning, logging and improving your home training. 
 The application has a database of exercises to choose from and also the possibility to add your own exercises.
 Main focus is on home training with exercises that don't need any special equipment.
-The system is a microservice application built with Spring Boot 3.4, React, and PostgreSQL and containerized using Docker for easy setup and deployment.
+The system is a microservice application built with Spring Boot, React, and PostgreSQL and containerized using Docker for easy setup and deployment.
 
 The `trainingpage` repository acts as the root orchestration repository containing:
 - docker-compose configuration
@@ -39,9 +39,9 @@ Each microservice is maintained in its own repository.
 # Setup Instructions
 
 ### Prerequisites
+
 Docker & Docker Compose
 An API Key for the external Exercise API (get it at [https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb])
-
 
 ## 1. Clone the repositories
 
@@ -87,8 +87,7 @@ All repositories must be placed in the same parent directory as the `docker-comp
 
 ## 3. Create environment variables
 
-Create a `.env` file in the root directory and add your API key and the enviroment variables as shown in .env.example.
-(Note: Ensure your docker-compose.yml uses these variables)
+Create a `.env` file in the root directory or edit the `.env.example` and add your API key and the enviroment variables as shown in `.env.example`.
 
 ---
 
@@ -105,7 +104,7 @@ This will build the images from source and start all services and databases.
 
 Once the containers are running:
 
-Open the Eureka Dashboard (http://localhost:8761) and verify that all 4 services (GATEWAY-SERVICE, USER-SERVICE, etc.) are listed under "Instances currently registered".
+Open the Eureka Dashboard (http://localhost:8761) and verify that all 4 services (GATEWAY-SERVICE, USER-SERVICE, STATISTIC-SERVICE, GATEWAY-SERVICE) are listed under "Instances currently registered".
 
 Open the Frontend (http://localhost:3000) to start using the application.
 
@@ -121,8 +120,8 @@ Open the Frontend (http://localhost:3000) to start using the application.
 | User Service      | 8081 |
 | Statistic Service | 8082 |
 | Training Service  | 8083 |
-| DB-user			| 5433 |
-| DB-training		| 5432 |
+| DB-user			      | 5433 |
+| DB-training		    | 5432 |
 
 ---
 
