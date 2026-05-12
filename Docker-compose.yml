@@ -1,0 +1,126 @@
+services:
+  # --- DATABAS FÖR TRAINING ---
+  db-training:
+    image: postgres:15
+    container_name: postgres-training-service
+    environment:
+      POSTGRES_DB: ${TRAINING_DB_NAME}
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - training_data:/var/lib/postgresql/data
+    networks:
+      - micro-network
+
+  # --- DATABAS FÖR USER ---
+  db-user:
+    image: postgres:15
+    container_name: postgres-user-service
+    environment:
+      POSTGRES_DB: ${USER_DB_NAME}
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    networks:
+      - micro-network
+
+  # --- EUREKA SERVER ---
+  eureka-server:
+    image: trainingpage-eureka-service:v1
+    build: ./service-registry
+    container_name: service-registry
+    ports:
+      - "8761:8761"
+    networks:
+      - micro-network
+
+  # --- USER SERVICE ---
+  user-service:
+    image: trainingpage-user-service:v4
+    build: ./user-service
+    container_name: user-service
+    depends_on:
+      - db-user
+      - eureka-server
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-user:5432/${USER_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_HOSTNAME=user-service
+    networks:
+      - micro-network
+
+  # --- TRAINING SERVICE ---
+  training-service:
+    image: trainingpage-training-service:v5
+    build: ./training-service
+    container_name: training-service
+    depends_on:
+      - db-training
+      - eureka-server
+    environment:
+      - EXERCISEDB_API_KEY=${EXERCISEDB_API_KEY}
+      - EXERCISEDB_API_URL=${EXERCISEDB_API_URL}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-training:5432/${TRAINING_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_HOSTNAME=training-service
+    env_file:
+      - .env
+    networks:
+      - micro-network
+
+  # --- STATISTIC SERVICE ---
+  statistic-service:
+    image: trainingpage-statistic-service:v2
+    build: ./statistic-service
+    container_name: statistic-service
+    depends_on:
+      - eureka-server
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - micro-network
+      
+  # --- GATEWAY SERVICE ---
+  gateway-service:
+    image: trainingpage-gateway-service:v2
+    build: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - micro-network
+
+  # --- FRONTEND SERVICE (react) ---
+  frontend:
+    image: trainingpage-frontend:v7
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://gateway-service:8080
+    depends_on:
+      - eureka-server
+    networks:
+      - micro-network
+      
+networks:
+  micro-network:
+    driver: bridge
+
+volumes:
+  training_data:
+  user_data:
