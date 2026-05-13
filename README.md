@@ -41,7 +41,7 @@ Each microservice is maintained in its own repository.
 ### Prerequisites
 
 Docker & Docker Compose
-An API Key for the external Exercise API (get it at [https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb])
+An API Key for the external Exercise API (get it at [Rapid](https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb))
 
 ## 1. Clone the repositories
 
